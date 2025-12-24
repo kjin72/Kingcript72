@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Vigenère Mobile</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #00ff66;
+    font-family: "Courier New", monospace;
+}
+
+#terminal {
+    padding: 15px;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    text-shadow: 0 0 6px #00ff66;
+}
+
+.linha {
+    margin: 6px 0;
+    white-space: pre-wrap;
+}
+
+#input-area {
+    position: sticky;
+    bottom: 0;
+    background: black;
+    padding-top: 10px;
+}
+
+#cmd {
+    width: 100%;
+    background: black;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    background: #00ff66;
+    border: none;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+button:active {
+    background: #00cc55;
+}
+</style>
+</head>
+<body>
+
+<div id="terminal">
+    <div class="linha">MATRIX VIGENERE TERMINAL — MOBILE</div>
+    <div class="linha">Comandos:</div>
+    <div class="linha">/vicri &lt;frase&gt; &lt;senha&gt;</div>
+    <div class="linha">/vides &lt;frase&gt; &lt;senha&gt;</div>
+    <div class="linha">--------------------------------------</div>
+</div>
+
+<div id="input-area">
+    <input id="cmd" placeholder="/vicri FRASE SENHA" />
+    <button onclick="executar()">EXECUTAR</button>
+</div>
+
+<script>
+function normalize(t) {
+    return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function vigenere(frase, senha, enc) {
+    const A = 65;
+    let res = "", j = 0;
+
+    for (let c of frase) {
+        if (c >= "A" && c <= "Z") {
+            let f = c.charCodeAt(0) - A;
+            let s = senha[j % senha.length].charCodeAt(0) - A;
+            let r = enc ? (f + s) % 26 : (f - s + 26) % 26;
+            res += String.fromCharCode(r + A);
+            j++;
+        } else {
+            res += c;
+        }
+    }
+    return res;
+}
+
+function print(txt="") {
+    const d = document.createElement("div");
+    d.className = "linha";
+    d.textContent = txt;
+    document.getElementById("terminal").appendChild(d);
+    d.scrollIntoView();
+}
+
+function executar() {
+    const input = document.getElementById("cmd").value.trim();
+    document.getElementById("cmd").value = "";
+
+    print("> " + input);
+
+    const m = input.match(/^\/(vicri|vides)\s+(.+)\s+(\S+)$/i);
+    if (!m) {
+        print("$/COMANDO NÃO ENCONTRADO");
+        return;
+    }
+
+    let frase = normalize(m[2]).toUpperCase().replace(/[^A-Z ]/g,"");
+    let senha = normalize(m[3]).toUpperCase().replace(/[^A-Z]/g,"");
+
+    if (!senha) {
+        print("$/COMANDO NÃO ENCONTRADO");
+        return;
+    }
+
+    let res = m[1].toLowerCase()==="vicri"
+        ? vigenere(frase, senha, true)
+        : vigenere(frase, senha, false);
+
+    print("--------------------------------------");
+    print("PALAVRA: " + frase);
+    print("SENHA: " + senha);
+    print("");
+    print("RESULTADO: " + res);
+    print("_______________________");
+}
+</script>
+
+</body>
+</html>
